@@ -11,9 +11,9 @@
 chunk-radius: 2
 
 # Wie viele Sekunden sollen Chunks nach dem Logout geladen bleiben?
-# -1 = Chunks bis zum Server-Neustart geladen lassen.
-# Standard: 600 Sekunden (10 Minuten)
-unload-delay-seconds: 600
+# -1 = Chunks dauerhaft geladen lassen (auch über Neustarts hinweg).
+# Standard: 10800 Sekunden (3 Stunden)
+unload-delay-seconds: 10800
 
 # Maximale Anzahl gleichzeitig force-geladener Regionen pro Spieler.
 # Verhindert Missbrauch auf öffentlichen Servern.
