@@ -2,34 +2,34 @@
 # LogoutChunkLoader Configuration
 # =============================================
 
-# Radius der Chunks die um den Logout-Punkt geladen bleiben.
-# Radius 0 = nur der Chunk des Spielers (1x1)
-# Radius 1 = 3x3 Chunks um den Logout-Punkt
-# Radius 2 = 5x5 Chunks (Standard, gut für Farmen)
-# Radius 3 = 7x7 Chunks
-# WARNUNG: Grosse Radien belasten die Server-Performance erheblich!
+# Chunk radius that stays loaded around the logout position.
+# Radius 0 = only the player's chunk (1x1)
+# Radius 1 = 3x3 chunks around the logout position
+# Radius 2 = 5x5 chunks (default, suitable for most farms)
+# Radius 3 = 7x7 chunks
+# WARNING: Large radii significantly increase server load!
 chunk-radius: 2
 
-# Wie viele Sekunden sollen Chunks nach dem Logout geladen bleiben?
-# -1 = Chunks dauerhaft geladen lassen (auch über Neustarts hinweg).
-# Standard: 10800 Sekunden (3 Stunden)
+# How many seconds should chunks stay loaded after logout?
+# -1 = Keep chunks loaded permanently (persists across server restarts).
+# Default: 10800 seconds (3 hours)
 unload-delay-seconds: 10800
 
-# Maximale Anzahl gleichzeitig force-geladener Regionen pro Spieler.
-# Verhindert Missbrauch auf öffentlichen Servern.
-# -1 = unbegrenzt
+# Maximum number of simultaneously force-loaded regions per player.
+# Prevents abuse on public servers.
+# -1 = unlimited
 max-regions-per-player: 1
 
-# Wenn true, profitieren nur Spieler mit der Permission 'logoutchunkloader.use'.
-# Standard: false (alle Spieler)
+# If true, only players with the 'logoutchunkloader.use' permission benefit.
+# Default: false (all players)
 require-permission: false
 
-# Debug-Ausgaben in der Server-Konsole aktivieren.
+# Enable debug output in the server console.
 debug: false
 
-# Nachricht an den Spieler beim Ausloggen (leer lassen = deaktiviert).
-# Unterstützt & Farb-Codes.
-logout-message: "&7[ChunkLoader] &aDeine Chunks bleiben fuer &e{seconds} Sekunden &ageladen."
+# Message sent to the player on logout (leave empty to disable).
+# Supports & color codes.
+logout-message: "&7[ChunkLoader] &aYour chunks will stay loaded for &e{seconds} seconds&a."
 
-# Nachricht an den Spieler beim Einloggen, wenn seine Chunks noch geladen sind.
-login-message: "&7[ChunkLoader] &aDeine Chunks wurden wieder entladen."
+# Message sent to the player on login if their chunks are still loaded.
+login-message: "&7[ChunkLoader] &aYour chunks have been unloaded."

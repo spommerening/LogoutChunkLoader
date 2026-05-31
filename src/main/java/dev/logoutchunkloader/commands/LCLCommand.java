@@ -75,9 +75,9 @@ public class LCLCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(Component.text("[LCL] LogoutChunkLoader Commands:", NamedTextColor.GOLD));
-        sender.sendMessage(Component.text("  /lcl reload  - Konfiguration neu laden", NamedTextColor.YELLOW));
-        sender.sendMessage(Component.text("  /lcl list    - Aktive Chunk-Regionen anzeigen", NamedTextColor.YELLOW));
-        sender.sendMessage(Component.text("  /lcl status  - Plugin-Status anzeigen", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("  /lcl reload  - Reload configuration", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("  /lcl list    - Show active chunk regions", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("  /lcl status  - Show plugin status", NamedTextColor.YELLOW));
     }
 
     @Override
