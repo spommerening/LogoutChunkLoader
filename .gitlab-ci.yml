@@ -2,6 +2,7 @@ image: eclipse-temurin:21-jdk
 
 stages:
   - build
+  - publish
 
 build:
   stage: build
@@ -11,8 +12,22 @@ build:
   artifacts:
     paths:
       - build/libs/LogoutChunkLoader-*.jar
-    expire_in: 30 days
+    expire_in: 1 hour
   cache:
     key: gradle-$CI_COMMIT_REF_SLUG
     paths:
       - .gradle/
+
+publish:
+  stage: publish
+  needs: [build]
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - JAR=$(ls build/libs/LogoutChunkLoader-*.jar | head -1)
+    - FILENAME=$(basename "$JAR")
+    - VERSION=${CI_COMMIT_TAG#v}
+    - |
+      curl --fail --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --upload-file "$JAR" \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/logoutchunkloader/${VERSION}/${FILENAME}"
