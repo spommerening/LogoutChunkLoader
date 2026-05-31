@@ -2,9 +2,6 @@
 build/
 .gradle/
 
-# Gradle wrapper jar (properties file is kept, binary is not)
-gradle/wrapper/gradle-wrapper.jar
-
 # IDE files
 .idea/
 *.iml
