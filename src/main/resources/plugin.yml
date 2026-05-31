@@ -1,0 +1,21 @@
+name: LogoutChunkLoader
+version: '${version}'
+main: dev.logoutchunkloader.LogoutChunkLoader
+api-version: '1.21'
+description: Keeps chunks loaded after a player logs out.
+author: Server Admin
+
+commands:
+  lcl:
+    description: LogoutChunkLoader management command
+    usage: /lcl <reload|list|status>
+    permission: logoutchunkloader.admin
+    aliases: [logoutchunkloader]
+
+permissions:
+  logoutchunkloader.admin:
+    description: Allows management of LogoutChunkLoader
+    default: op
+  logoutchunkloader.use:
+    description: Player's chunks are kept loaded on logout
+    default: true

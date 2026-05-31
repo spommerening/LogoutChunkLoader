@@ -1,0 +1,27 @@
+# Gradle build output
+build/
+.gradle/
+
+# Gradle wrapper jar (properties file is kept, binary is not)
+gradle/wrapper/gradle-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.code-workspace
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Local environment overrides
+local.properties

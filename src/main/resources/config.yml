@@ -1,0 +1,35 @@
+# =============================================
+# LogoutChunkLoader Configuration
+# =============================================
+
+# Radius der Chunks die um den Logout-Punkt geladen bleiben.
+# Radius 0 = nur der Chunk des Spielers (1x1)
+# Radius 1 = 3x3 Chunks um den Logout-Punkt
+# Radius 2 = 5x5 Chunks (Standard, gut für Farmen)
+# Radius 3 = 7x7 Chunks
+# WARNUNG: Grosse Radien belasten die Server-Performance erheblich!
+chunk-radius: 2
+
+# Wie viele Sekunden sollen Chunks nach dem Logout geladen bleiben?
+# -1 = Chunks bis zum Server-Neustart geladen lassen.
+# Standard: 600 Sekunden (10 Minuten)
+unload-delay-seconds: 600
+
+# Maximale Anzahl gleichzeitig force-geladener Regionen pro Spieler.
+# Verhindert Missbrauch auf öffentlichen Servern.
+# -1 = unbegrenzt
+max-regions-per-player: 1
+
+# Wenn true, profitieren nur Spieler mit der Permission 'logoutchunkloader.use'.
+# Standard: false (alle Spieler)
+require-permission: false
+
+# Debug-Ausgaben in der Server-Konsole aktivieren.
+debug: false
+
+# Nachricht an den Spieler beim Ausloggen (leer lassen = deaktiviert).
+# Unterstützt & Farb-Codes.
+logout-message: "&7[ChunkLoader] &aDeine Chunks bleiben fuer &e{seconds} Sekunden &ageladen."
+
+# Nachricht an den Spieler beim Einloggen, wenn seine Chunks noch geladen sind.
+login-message: "&7[ChunkLoader] &aDeine Chunks wurden wieder entladen."
