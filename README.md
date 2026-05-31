@@ -65,10 +65,10 @@ git clone https://github.com/your-username/LogoutChunkLoader.git
 cd LogoutChunkLoader
 
 # Build the JAR (Linux / macOS)
-./gradlew clean jar
+./gradlew jar
 
 # Build the JAR (Windows)
-gradlew.bat clean jar
+gradlew.bat jar
 ```
 
 The compiled plugin will be placed at:
@@ -81,7 +81,7 @@ build/libs/LogoutChunkLoader-1.0.0.jar
 
 > **Note if your system Java is older than 21:** Set `JAVA_HOME` explicitly:
 > ```bash
-> JAVA_HOME=/path/to/jdk-21 ./gradlew clean jar
+> JAVA_HOME=/path/to/jdk-21 ./gradlew jar
 > ```
 
 ---

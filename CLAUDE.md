@@ -7,8 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Java 21 is required. Use the explicit `JAVA_HOME` when the system default is older:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew clean jar
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew jar
 ```
+
+Use `clean jar` only when you suspect a corrupt build cache — Gradle's incremental compiler handles changed files automatically.
 
 Output: `build/libs/LogoutChunkLoader-1.0.0.jar`
 
