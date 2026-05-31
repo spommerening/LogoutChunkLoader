@@ -29,10 +29,12 @@ Vanilla Minecraft unloads chunks the moment no player is nearby. Log out next to
 | Requirement | Version |
 |---|---|
 | Minecraft (Java Edition) | 1.21.x |
-| Server software | [Paper](https://papermc.io/downloads/paper) (or any Paper fork) |
+| Server software | [Paper](https://papermc.io/downloads/paper) 1.21.x or 26.x (or any Paper fork) |
 | Java | 21 or newer |
 
 Spigot and CraftBukkit are **not** supported — the plugin uses Paper-specific APIs.
+
+> **Paper 26.x note:** Starting in 2025, Paper introduced a new API versioning scheme (`26.x`) that replaces the old `1.21.x-R0.1-SNAPSHOT` artifact names. Despite the different version number, Paper 26.x servers are still running Minecraft 1.21.x underneath. The plugin is fully compatible — Java 21 bytecode runs on Paper 26.x's required Java 25 runtime, and all APIs used are unchanged. A `plugin.yml` `api-version` warning may appear in the console, but it does not affect functionality.
 
 ---
 

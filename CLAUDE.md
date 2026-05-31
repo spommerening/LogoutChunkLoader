@@ -16,9 +16,11 @@ There are no tests. The only build task of interest is `jar`.
 
 ## Paper API dependency
 
-The project compiles against `io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT` from `https://repo.papermc.io/repository/maven-public/`. Paper's artifact history skips 1.21.2 (jumps 1.21.1 → 1.21.3). Paper's new versioning scheme `26.x` requires Java 25 and is therefore not used here.
+The project compiles against `io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT` from `https://repo.papermc.io/repository/maven-public/`. Paper's artifact history skips 1.21.2 (jumps 1.21.1 → 1.21.3).
 
-The API version declared in `plugin.yml` is `'1.21'` (Bukkit-style), not the Paper build number.
+Paper's `26.x` versioning scheme (e.g. `26.1.2.build.66-stable`) is a **new API artifact naming convention** introduced in 2025 — it does not represent a different Minecraft version. The underlying server is still Minecraft 1.21.x. The `26.x` artifacts require Java 25 to compile against, but the plugin is fully compatible at runtime with Paper 26.x servers because Java 25 runs Java 21 bytecode and all APIs used are unchanged.
+
+The API version declared in `plugin.yml` is `'1.21'` (Bukkit-style). Paper 26.x servers may log a minor warning about this, but load the plugin without issue.
 
 ## Architecture
 
