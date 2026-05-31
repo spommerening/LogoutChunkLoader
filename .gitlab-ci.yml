@@ -1,0 +1,18 @@
+image: eclipse-temurin:21-jdk
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - chmod +x gradlew
+    - ./gradlew jar
+  artifacts:
+    paths:
+      - build/libs/LogoutChunkLoader-*.jar
+    expire_in: 30 days
+  cache:
+    key: gradle-$CI_COMMIT_REF_SLUG
+    paths:
+      - .gradle/
