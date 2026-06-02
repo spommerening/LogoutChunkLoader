@@ -26,14 +26,17 @@ public class PlayerQuitListener implements Listener {
         Player player = event.getPlayer();
         Location logoutLocation = player.getLocation();
 
-        chunkManager.loadChunksForPlayer(player, logoutLocation);
+        boolean chunksLoaded = chunkManager.loadChunksForPlayer(player, logoutLocation);
+        chunkManager.cleanupLoginTracking(player.getUniqueId());
 
-        String message = plugin.getConfig().getString("logout-message", "");
-        if (message != null && !message.isEmpty()) {
-            int delay = plugin.getConfig().getInt("unload-delay-seconds", 600);
-            message = message.replace("{seconds}", String.valueOf(delay));
-            Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
-            player.sendMessage(component);
+        if (chunksLoaded) {
+            String message = plugin.getConfig().getString("logout-message", "");
+            if (message != null && !message.isEmpty()) {
+                int delay = plugin.getConfig().getInt("unload-delay-seconds", 600);
+                message = message.replace("{seconds}", String.valueOf(delay));
+                Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+                player.sendMessage(component);
+            }
         }
     }
 }

@@ -20,6 +20,14 @@ unload-delay-seconds: 10800
 # -1 = unlimited
 max-regions-per-player: 1
 
+# Minimum number of seconds a player must be online in a single session before
+# the ChunkLoader will activate for them at logout.
+# This prevents short-lived visitors and bots from inflating the number of
+# force-loaded chunk regions on the server.
+# 0 = disabled (activate for every logout, no minimum required)
+# Default: 900 seconds (15 minutes)
+min-online-seconds: 900
+
 # If true, only players with the 'logoutchunkloader.use' permission benefit.
 # Default: false (all players)
 require-permission: false
@@ -33,3 +41,13 @@ logout-message: "&7[ChunkLoader] &aYour chunks will stay loaded for &e{seconds} 
 
 # Message sent to the player on login if their chunks are still loaded.
 login-message: "&7[ChunkLoader] &aYour chunks have been unloaded."
+
+# Message sent to the player on login when a minimum online time is required.
+# {seconds} is replaced by the configured min-online-seconds value.
+# Leave empty to disable.
+min-online-message: "&7[ChunkLoader] &7Chunk keeping is not yet active. &eStay online for &b{seconds} more seconds &eand it will be enabled automatically."
+
+# Message sent to the player once they have been online long enough for the
+# ChunkLoader to become active for their session.
+# Leave empty to disable.
+ready-message: "&7[ChunkLoader] &aChunk keeping is now active &7— your chunks will be kept loaded when you log off."
