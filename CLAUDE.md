@@ -12,7 +12,7 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew jar
 
 Use `clean jar` only when you suspect a corrupt build cache — Gradle's incremental compiler handles changed files automatically.
 
-Output: `build/libs/LogoutChunkLoader-1.0.0.jar`
+Output: `build/libs/LogoutChunkLoader-1.1.0.jar`
 
 There are no tests. The only build task of interest is `jar`.
 
@@ -30,24 +30,33 @@ The plugin has one non-obvious invariant: **`onDisable()` must not touch `data.y
 
 ### State owned by `ChunkManager`
 
-Three parallel maps are always kept in sync, keyed by player UUID:
+Five maps are always kept in sync, keyed by player UUID:
 
 | Map | Contents |
 |---|---|
 | `activeChunks` | `Set<Chunk>` currently force-loaded |
 | `unloadTasks` | Scheduled `BukkitTask` (absent when delay is `-1`) |
 | `regionMeta` | `RegionMeta` (world, centerX/Z, radius, absolute `expiryMs`) |
+| `loginTimes` | `Long` epoch-ms timestamp of the player's current login |
+| `readyTasks` | Scheduled `BukkitTask` that fires the ready-message after `min-online-seconds` |
 
 `regionMeta` is the persistence source of truth. `saveData()` serialises it to `data.yml`; `loadData()` deserialises it on startup.
+
+`loginTimes` and `readyTasks` are **in-memory only** — they are never persisted. Both are cleared when a player disconnects and on plugin disable.
 
 ### Expiry is stored as an absolute epoch timestamp
 
 `expiryMs` is `System.currentTimeMillis() + delaySeconds * 1000` at logout time. On restart, `loadData()` computes `remainingMs = expiryMs - now` and schedules the `BukkitTask` with that remaining duration — the clock is never reset. A value of `-1` means permanent (no task is scheduled).
 
+### Minimum online time
+
+`min-online-seconds` (default 900) gates whether the ChunkLoader activates at logout. At login, `ChunkManager.recordLogin()` records the epoch-ms timestamp and schedules a `BukkitTask` that fires after `min-online-seconds` ticks to send the player the `ready-message`. At logout, `loadChunksForPlayer()` computes elapsed seconds from the stored timestamp; if the threshold is not met it returns `false` and no region is registered. `cleanupLoginTracking()` removes both `loginTimes` and `readyTasks` entries at logout. Setting `min-online-seconds: 0` disables the feature entirely.
+
 ### Flow summary
 
-- **Logout** → `PlayerQuitListener` → `ChunkManager.loadChunksForPlayer()` → `forceLoadRegion()` + `saveData()`
+- **Login** → `PlayerJoinListener` → `ChunkManager.cancelAndUnloadForPlayer()` (if active) + `recordLogin()` → send `min-online-message`
+- **After `min-online-seconds`** → scheduled task → send `ready-message` to player
+- **Logout** → `PlayerQuitListener` → `ChunkManager.loadChunksForPlayer()` (checks min-online, returns `boolean`) → `cleanupLoginTracking()` → if loaded: `forceLoadRegion()` + `saveData()` + send `logout-message`
 - **Timer expires** → `ChunkUnloadTask.run()` → `ChunkManager.unloadChunksForPlayer()` + `saveData()`
-- **Login** → `PlayerJoinListener` → `ChunkManager.cancelAndUnloadForPlayer()` + `saveData()`
 - **Server start** → `ChunkManager` constructor → `loadData()` → `forceLoadRegion()` for each non-expired entry
-- **Server stop** → `LogoutChunkLoader.onDisable()` → `unloadAllChunks()` (no `saveData()`)
+- **Server stop** → `LogoutChunkLoader.onDisable()` → `unloadAllChunks()` (clears tracking maps, no `saveData()`)

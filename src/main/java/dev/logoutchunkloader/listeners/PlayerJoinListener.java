@@ -33,5 +33,17 @@ public class PlayerJoinListener implements Listener {
                 player.sendMessage(component);
             }
         }
+
+        chunkManager.recordLogin(player);
+
+        int minOnlineSeconds = plugin.getConfig().getInt("min-online-seconds", 900);
+        if (minOnlineSeconds > 0) {
+            String message = plugin.getConfig().getString("min-online-message", "");
+            if (message != null && !message.isEmpty()) {
+                message = message.replace("{seconds}", String.valueOf(minOnlineSeconds));
+                Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+                player.sendMessage(component);
+            }
+        }
     }
 }

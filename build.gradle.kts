@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "dev.logoutchunkloader"
-version = "1.0.0"
+version = (project.findProperty("version") as String? ?: "1.1.0").takeIf { it != "unspecified" } ?: "1.1.0"
 description = "Keeps chunks loaded after player logout"
 
 java {

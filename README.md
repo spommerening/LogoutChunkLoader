@@ -17,9 +17,10 @@ Vanilla Minecraft unloads chunks the moment no player is nearby. Log out next to
 - **Configurable unload delay** — set a fixed duration, or `-1` to keep chunks loaded indefinitely.
 - **Restart-safe persistence** — active regions are saved to `data.yml` and restored on the next server start with their original expiry time intact (the clock is never reset by a reboot).
 - **Instant release on login** — when the player reconnects the region is released immediately; their presence takes over naturally.
+- **Minimum online time gate** — only players who have been online for a configurable number of seconds activate the ChunkLoader at logout, keeping the number of force-loaded regions low by excluding short-lived visitors and bots.
 - **Per-player region limit** — caps the number of simultaneous regions per player to prevent abuse on public servers.
 - **Optional permission gate** — restrict the feature to players with a specific permission node.
-- **Color-coded player messages** — configurable logout and login feedback using standard `&` color codes.
+- **Color-coded player messages** — configurable feedback at login, on reaching the online-time threshold, and at logout; all using standard `&` color codes.
 - **Admin command** — `/lcl reload | list | status` for live inspection and hot config reloads.
 
 ---
@@ -74,7 +75,7 @@ gradlew.bat jar
 The compiled plugin will be placed at:
 
 ```
-build/libs/LogoutChunkLoader-1.0.0.jar
+build/libs/LogoutChunkLoader-1.1.0.jar
 ```
 
 > **Note for Linux/macOS:** If `./gradlew` is not executable, run `chmod +x gradlew` first.
@@ -109,6 +110,14 @@ unload-delay-seconds: 10800
 # -1 = unlimited
 max-regions-per-player: 1
 
+# Minimum number of seconds a player must be online in a single session before
+# the ChunkLoader will activate for them at logout.
+# This prevents short-lived visitors and bots from inflating the number of
+# force-loaded chunk regions on the server.
+# 0 = disabled (activate for every logout, no minimum required)
+# Default: 900 seconds (15 minutes)
+min-online-seconds: 900
+
 # If true, only players with the 'logoutchunkloader.use' permission benefit.
 # Default: false (all players)
 require-permission: false
@@ -122,6 +131,16 @@ logout-message: "&7[ChunkLoader] &aYour chunks will stay loaded for &e{seconds} 
 
 # Message sent to the player on login if their chunks are still loaded.
 login-message: "&7[ChunkLoader] &aYour chunks have been unloaded."
+
+# Message sent to the player on login when a minimum online time is required.
+# {seconds} is replaced by the configured min-online-seconds value.
+# Leave empty to disable.
+min-online-message: "&7[ChunkLoader] &7Chunk keeping is not yet active. &eStay online for &b{seconds} more seconds &eand it will be enabled automatically."
+
+# Message sent to the player once they have been online long enough for the
+# ChunkLoader to become active for their session.
+# Leave empty to disable.
+ready-message: "&7[ChunkLoader] &aChunk keeping is now active &7— your chunks will be kept loaded when you log off."
 ```
 
 ### Chunk radius performance guide
@@ -135,6 +154,28 @@ login-message: "&7[ChunkLoader] &aYour chunks have been unloaded."
 | 4 | 81 (9×9) | High-performance servers only |
 
 Each force-loaded chunk runs full tick calculations. Monitor server TPS with `/tps` when using larger radii with many offline players.
+
+---
+
+## Minimum online time
+
+The `min-online-seconds` setting (default: 900 — 15 minutes) ensures that the ChunkLoader only activates for players who have been connected long enough to actually be doing meaningful work. Short-lived visitors and automated reconnect bots never trigger chunk loading, which keeps the total number of force-loaded regions on the server as low as possible.
+
+### How it works
+
+1. **On login** — the player receives a short notice that chunk keeping is not yet active, along with how many seconds remain until it becomes available.
+2. **After `min-online-seconds`** — a scheduled task fires and sends the player a confirmation that chunk keeping is now active for their session.
+3. **On logout** — if the player has been online for at least `min-online-seconds` seconds in the current session, the ChunkLoader activates normally. If not, no region is registered and no logout message is sent.
+
+The timer is purely in-memory and is reset on every login. It is never persisted and is not affected by server restarts.
+
+### Disabling the feature
+
+Set `min-online-seconds: 0` to disable the minimum online time requirement entirely. In that case, the `min-online-message` and `ready-message` are also never sent.
+
+### Customising the messages
+
+Both messages support `&` color codes. The `{seconds}` placeholder in `min-online-message` is replaced with the configured `min-online-seconds` value. Set either message to an empty string to suppress it.
 
 ---
 

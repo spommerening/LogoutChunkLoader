@@ -58,6 +58,8 @@ public class LCLCommand implements CommandExecutor, TabCompleter {
             case "status" -> {
                 int total = chunkManager.getTotalForceLoadedChunks();
                 int regions = chunkManager.getActiveRegionSummary().size();
+                int minOnline = plugin.getConfig().getInt("min-online-seconds", 900);
+                String minOnlineDisplay = minOnline <= 0 ? "disabled" : minOnline + "s";
                 sender.sendMessage(Component.text("[LCL] Status:", NamedTextColor.GOLD));
                 sender.sendMessage(Component.text("  Active regions: " + regions, NamedTextColor.WHITE));
                 sender.sendMessage(Component.text("  Total force-loaded chunks: " + total, NamedTextColor.WHITE));
@@ -66,6 +68,9 @@ public class LCLCommand implements CommandExecutor, TabCompleter {
                         NamedTextColor.WHITE));
                 sender.sendMessage(Component.text(
                         "  Unload delay: " + plugin.getConfig().getInt("unload-delay-seconds", 600) + "s",
+                        NamedTextColor.WHITE));
+                sender.sendMessage(Component.text(
+                        "  Min online time: " + minOnlineDisplay,
                         NamedTextColor.WHITE));
             }
             default -> sendHelp(sender);

@@ -2,6 +2,8 @@ package dev.logoutchunkloader.managers;
 
 import dev.logoutchunkloader.LogoutChunkLoader;
 import dev.logoutchunkloader.tasks.ChunkUnloadTask;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -21,6 +23,8 @@ public class ChunkManager {
     private final Map<UUID, Set<Chunk>> activeChunks = new HashMap<>();
     private final Map<UUID, BukkitTask> unloadTasks = new HashMap<>();
     private final Map<UUID, RegionMeta> regionMeta = new HashMap<>();
+    private final Map<UUID, Long> loginTimes = new HashMap<>();
+    private final Map<UUID, BukkitTask> readyTasks = new HashMap<>();
     private final File dataFile;
 
     private static class RegionMeta {
@@ -45,12 +49,12 @@ public class ChunkManager {
         loadData();
     }
 
-    public void loadChunksForPlayer(Player player, Location location) {
+    public boolean loadChunksForPlayer(Player player, Location location) {
         UUID playerId = player.getUniqueId();
 
         boolean requirePerm = plugin.getConfig().getBoolean("require-permission", false);
         if (requirePerm && !player.hasPermission("logoutchunkloader.use")) {
-            return;
+            return false;
         }
 
         int maxRegions = plugin.getConfig().getInt("max-regions-per-player", 1);
@@ -59,11 +63,26 @@ public class ChunkManager {
                 plugin.getLogger().info("Player " + player.getName()
                         + " already has max regions loaded. Skipping.");
             }
-            return;
+            return false;
+        }
+
+        int minOnlineSeconds = plugin.getConfig().getInt("min-online-seconds", 900);
+        if (minOnlineSeconds > 0) {
+            Long loginTime = loginTimes.get(playerId);
+            long elapsedSeconds = loginTime == null ? 0L
+                    : (System.currentTimeMillis() - loginTime) / 1000L;
+            if (elapsedSeconds < minOnlineSeconds) {
+                if (plugin.getConfig().getBoolean("debug", false)) {
+                    plugin.getLogger().info("Player " + player.getName()
+                            + " was online for only " + elapsedSeconds + "s (min: "
+                            + minOnlineSeconds + "s). Skipping chunk loading.");
+                }
+                return false;
+            }
         }
 
         World world = location.getWorld();
-        if (world == null) return;
+        if (world == null) return false;
 
         int radius = plugin.getConfig().getInt("chunk-radius", 2);
         int centerX = location.getBlockX() >> 4;
@@ -80,6 +99,7 @@ public class ChunkManager {
         }
 
         saveData();
+        return true;
     }
 
     private void forceLoadRegion(UUID playerId, World world, int centerX, int centerZ,
@@ -100,6 +120,38 @@ public class ChunkManager {
                     .runTaskLater(plugin, delayTicks);
             unloadTasks.put(playerId, task);
         }
+    }
+
+    public void recordLogin(Player player) {
+        UUID playerId = player.getUniqueId();
+        loginTimes.put(playerId, System.currentTimeMillis());
+
+        BukkitTask existing = readyTasks.remove(playerId);
+        if (existing != null) existing.cancel();
+
+        int minOnlineSeconds = plugin.getConfig().getInt("min-online-seconds", 900);
+        if (minOnlineSeconds <= 0) return;
+
+        String readyMessage = plugin.getConfig().getString("ready-message", "");
+        if (readyMessage == null || readyMessage.isEmpty()) return;
+
+        long delayTicks = (long) minOnlineSeconds * 20L;
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            readyTasks.remove(playerId);
+            Player p = Bukkit.getPlayer(playerId);
+            if (p != null && p.isOnline()) {
+                Component component = LegacyComponentSerializer.legacyAmpersand()
+                        .deserialize(readyMessage);
+                p.sendMessage(component);
+            }
+        }, delayTicks);
+        readyTasks.put(playerId, task);
+    }
+
+    public void cleanupLoginTracking(UUID playerId) {
+        loginTimes.remove(playerId);
+        BukkitTask task = readyTasks.remove(playerId);
+        if (task != null) task.cancel();
     }
 
     public void cancelAndUnloadForPlayer(UUID playerId, String playerName) {
@@ -142,6 +194,12 @@ public class ChunkManager {
             task.cancel();
         }
         unloadTasks.clear();
+
+        for (BukkitTask task : readyTasks.values()) {
+            task.cancel();
+        }
+        readyTasks.clear();
+        loginTimes.clear();
 
         for (Set<Chunk> chunks : activeChunks.values()) {
             unloadChunkSet(chunks);
